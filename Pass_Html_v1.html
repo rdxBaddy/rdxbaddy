@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Activity Pass Tracker</title>
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0a192f 0%, #172a45 40%, #1e3a8a 100%);
+      --card-bg: #ffffff;
+      --primary-blue: #2563eb;
+      --sky-cyan: #06b6d4;
+      --accent-glow: #38bdf8;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: var(--bg-gradient);
+      padding: 16px;
+    }
+
+    .pass-card {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 410px;
+      border-radius: 28px;
+      padding: 26px 20px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4), 0 0 25px rgba(56, 189, 248, 0.25);
+      text-align: center;
+      position: relative;
+    }
+
+    .icon-wrapper {
+      width: 68px;
+      height: 68px;
+      margin: 0 auto 12px;
+      border-radius: 20px;
+      background: linear-gradient(145deg, #2563eb, #06b6d4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 30px;
+      box-shadow: 0 10px 22px rgba(37, 99, 235, 0.35);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e0f2fe;
+      color: #0284c7;
+      padding: 5px 14px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      border: 1px solid #bae6fd;
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #0284c7;
+    }
+
+    .selector-container {
+      margin-bottom: 16px;
+    }
+
+    .selector-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .slot-options {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .slot-chip {
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 12px;
+      border: 1.5px solid #cbd5e1;
+      background: #f8fafc;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .slot-chip.active {
+      background: linear-gradient(135deg, #2563eb, #06b6d4);
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+      transform: scale(1.05);
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+    }
+
+    .status-pill {
+      display: inline-block;
+      background: #f1f5f9;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .status-pill.completed {
+      background: #dcfce7;
+      color: #15803d;
+      font-weight: 700;
+    }
+
+    .slots-grid {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 18px;
+      background: #f8fafc;
+      padding: 12px;
+      border-radius: 18px;
+      border: 1px solid #e2e8f0;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+
+    .slot {
+      aspect-ratio: 1;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #94a3b8;
+      background: #ffffff;
+      border: 1.5px dashed #cbd5e1;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .slot.active {
+      background: linear-gradient(135deg, #2563eb, #06b6d4);
+      color: #ffffff;
+      border: none;
+      box-shadow: 0 3px 8px rgba(37, 99, 235, 0.35);
+      transform: scale(1.03);
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .progress-bar-bg {
+      background: #e2e8f0;
+      height: 9px;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #2563eb, #06b6d4, #10b981);
+      border-radius: 20px;
+      transition: width 0.3s ease-out;
+      box-shadow: 0 0 8px rgba(6, 182, 212, 0.5);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #06b6d4);
+      color: #ffffff;
+      box-shadow: 0 5px 14px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      color: #ef4444;
+      border: 1px solid #fecaca;
+    }
+
+    .btn-secondary:active {
+      background: #fef2f2;
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="pass-card">
+    <div class="icon-wrapper">🏸</div>
+
+    <div class="badge" id="badge-pill">
+      <span class="badge-dot"></span>
+      <span id="badge-text">15-SLOT PASS</span>
+    </div>
+
+    <!-- Capacity Options -->
+    <div class="selector-container">
+      <div class="selector-label">Choose Pass Capacity</div>
+      <div class="slot-options" id="slot-options">
+        <button class="slot-chip" onclick="selectSlotPlan(12)">12 Slots</button>
+        <button class="slot-chip active" onclick="selectSlotPlan(15)">15 Slots</button>
+        <button class="slot-chip" onclick="selectSlotPlan(18)">18 Slots</button>
+        <button class="slot-chip" onclick="selectSlotPlan(22)">22 Slots</button>
+        <button class="slot-chip" onclick="selectSlotPlan(30)">30 Slots</button>
+      </div>
+    </div>
+
+    <h2 class="title" id="title-text">Activity Pass</h2>
+    <div class="status-pill" id="status-pill">⚡ Tap "+ Use Slot" to check in</div>
+
+    <div class="slots-grid" id="slots-grid"></div>
+
+    <div class="progress-info">
+      <span id="counter-text">0 / 15 USED</span>
+      <span id="percentage-text">0%</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-bar"></div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="useSlot()">+ Use Slot</button>
+      <button class="btn btn-secondary" onclick="resetPass()">Reset</button>
+    </div>
+  </div>
+
+  <script>
+    const ALLOWED_CAPACITIES = [12, 15, 18, 22, 30];
+    
+    let totalSlots = parseInt(localStorage.getItem('pass_total_slots') || '15', 10);
+    if (!ALLOWED_CAPACITIES.includes(totalSlots)) totalSlots = 15;
+
+    let usedSlots = parseInt(localStorage.getItem(`pass_used_${totalSlots}`) || '0', 10);
+
+    const slotsGrid = document.getElementById('slots-grid');
+    const progressBar = document.getElementById('progress-bar');
+    const counterText = document.getElementById('counter-text');
+    const percentageText = document.getElementById('percentage-text');
+    const titleText = document.getElementById('title-text');
+    const statusPill = document.getElementById('status-pill');
+    const badgeText = document.getElementById('badge-text');
+
+    function selectSlotPlan(slots) {
+      totalSlots = slots;
+      localStorage.setItem('pass_total_slots', totalSlots);
+      usedSlots = parseInt(localStorage.getItem(`pass_used_${totalSlots}`) || '0', 10);
+      
+      updateSelectorUI();
+      buildGrid();
+      updateUI();
+    }
+
+    function updateSelectorUI() {
+      const buttons = document.querySelectorAll('.slot-chip');
+      buttons.forEach(btn => {
+        if (btn.innerText.startsWith(`${totalSlots}`)) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      badgeText.innerText = `${totalSlots}-SLOT PASS`;
+    }
+
+    function buildGrid() {
+      slotsGrid.innerHTML = '';
+      if (totalSlots === 30 || totalSlots === 18 || totalSlots === 12) {
+        slotsGrid.style.gridTemplateColumns = 'repeat(6, 1fr)';
+      } else {
+        slotsGrid.style.gridTemplateColumns = 'repeat(5, 1fr)';
+      }
+
+      for (let i = 1; i <= totalSlots; i++) {
+        const slot = document.createElement('div');
+        slot.classList.add('slot');
+        slot.id = `slot-${i}`;
+        slot.innerText = i;
+        slot.addEventListener('click', () => toggleSlot(i));
+        slotsGrid.appendChild(slot);
+      }
+    }
+
+    function toggleSlot(index) {
+      usedSlots = (index === usedSlots) ? usedSlots - 1 : index;
+      saveAndRender();
+    }
+
+    function useSlot() {
+      if (usedSlots < totalSlots) {
+        usedSlots++;
+        saveAndRender();
+      }
+    }
+
+    function resetPass() {
+      usedSlots = 0;
+      saveAndRender();
+    }
+
+    function saveAndRender() {
+      localStorage.setItem(`pass_used_${totalSlots}`, usedSlots);
+      updateUI();
+    }
+
+    function updateUI() {
+      for (let i = 1; i <= totalSlots; i++) {
+        const slotEl = document.getElementById(`slot-${i}`);
+        if (!slotEl) continue;
+        if (i <= usedSlots) {
+          slotEl.classList.add('active');
+          slotEl.innerHTML = '✓';
+        } else {
+          slotEl.classList.remove('active');
+          slotEl.innerText = i;
+        }
+      }
+
+      const percent = Math.round((usedSlots / totalSlots) * 100);
+      progressBar.style.width = `${percent}%`;
+      counterText.innerText = `${usedSlots} / ${totalSlots} USED`;
+      percentageText.innerText = `${percent}%`;
+
+      if (usedSlots === totalSlots) {
+        titleText.innerHTML = `Completed all ${totalSlots} slots! 🏆`;
+        statusPill.innerHTML = "🎉 Pass fully completed";
+        statusPill.classList.add('completed');
+      } else if (usedSlots > 0) {
+        titleText.innerHTML = "Activity Pass";
+        statusPill.innerHTML = `⚡ ${totalSlots - usedSlots} slot(s) remaining`;
+        statusPill.classList.remove('completed');
+      } else {
+        titleText.innerHTML = "Activity Pass";
+        statusPill.innerHTML = "⚡ Tap '+ Use Slot' or any slot directly";
+        statusPill.classList.remove('completed');
+      }
+    }
+
+    updateSelectorUI();
+    buildGrid();
+    updateUI();
+  </script>
+</body>
+</html>
